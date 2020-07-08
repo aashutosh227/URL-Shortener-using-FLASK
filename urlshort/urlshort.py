@@ -72,3 +72,7 @@ def page_not_found(error):
 @bp.route('/api')
 def session_api():
     return jsonify(list(session.keys()))
+
+@bp.route('/manage_codes')
+def manage_code():
+    return render_template('manage_codes.html')
