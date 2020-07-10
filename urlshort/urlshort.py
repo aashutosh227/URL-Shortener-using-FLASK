@@ -49,7 +49,6 @@ def your_url():
         #return redirect('/')  #Redirect to home page.
         return redirect(url_for('urlshort.home'))
 
-
 #Functionality to redirect to desired page for each code.
 @bp.route('/<string:code>')
 def redirect_to_url(code):
@@ -76,3 +75,23 @@ def session_api():
 @bp.route('/manage_codes')
 def manage_code():
     return render_template('manage_codes.html')
+
+#Function to visit the site by entering the short code
+@bp.route('/visit', methods= ["GET","POST"])
+def visit():
+    if request.method =="POST" and os.path.exists('urls.json'):
+
+        with open('urls.json') as url_file:
+            urls = json.load(url_file)
+            #Check if short code exists or not
+            if(request.form['code'] not in urls.keys()):
+                flash("Short code dosen't exist, Please make a new one! ")
+                return redirect(url_for('urlshort.manage_code'))
+            else:
+                code = request.form['code']
+                if 'url' in urls[code].keys():
+                    return redirect(urls[code]['url'])
+                else:
+                    return redirect(url_for('static', filename= 'user_files/'+urls[code]['file']))
+    else:
+        return abort(404)
