@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block main %}
+<div class="container text-center">
+    <div class="card-deck mb-3" style="margin-right: 200px;margin-left: 200px;" id="update_form">
+        <div class="card mb-4 shadow-sm">
+          <div class="card-header">
+            <h4 class="my-0 font-weight-normal text-center">Website</h4>
+          </div>
+          <div class="card-body">
+            <form action="your-url" method="post" id="manage_form">
+              <label for="code">Short Name</label>
+              <input type="text" class="form-control" name="code" id="code" value="{{ request.form['code'] }}" required>
+              <br>
+              <label for="long_url">Website URL</label>
+              <input type="url" class="form-control" name="url" id="url" 
+              value="{{ url }}" 
+              required>
+              <br>
+              <button class="btn btn-primary my-2 del_btn" onclick="del_url()" type="button" id="del_btn">
+                Delete</button>
+              <button class="btn btn-primary my-2 update_btn" style="margin-left: 100px;" type="submit">Update</button>
+            </form>
+          </div>
+        </div>
+    </div>
+</div>
+
+<script>
+  function del_url(){
+    document.getElementById('manage_form').action = "delete_file_code";
+    document.getElementById('manage_form').submit();
+  }
+</script>
+
+
+{% endblock %}

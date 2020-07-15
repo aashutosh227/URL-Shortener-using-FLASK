@@ -95,3 +95,69 @@ def visit():
                     return redirect(url_for('static', filename= 'user_files/'+urls[code]['file']))
     else:
         return abort(404)
+
+#Function to visit the site by entering the short code
+@bp.route('/manage', methods= ["GET","POST"])
+def manage():
+    if request.method =="POST" and os.path.exists('urls.json'):
+
+        with open('urls.json') as url_file:
+            urls = json.load(url_file)
+            #Check if short code exists or not
+            if(request.form['code'] not in urls.keys()):
+                flash("Short code dosen't exist, Please make a new one! ")
+                return redirect(url_for('urlshort.manage_code'))
+            else:
+                code = request.form['code']
+                if 'file' in urls[request.form['code']].keys():
+                    return render_template('manage_file.html', 
+                    code = request.form['code'], file_path=urls[request.form['code']]['file'][len(code):])
+                elif 'url' in urls[request.form['code']].keys():
+                    return render_template('manage_url.html', 
+                    code = request.form['code'], url=urls[request.form['code']]['url'])
+                else:
+                    flash("Short code dosen't exist, Please make a new one! ")
+                    return redirect(url_for('urlshort.manage_code'))
+    else:
+        return abort(404)
+
+#Function to return URL/FILE info
+@bp.route('/get_code_data')
+def get_code_data(code, type):
+    with open('urls.json') as url_file:
+        urls = json.load(url_file)
+        if type=="url":
+            return urls[code]['url']
+        else:
+            return urls[code]['file'][len(code):]
+
+
+#Function to delete code
+@bp.route('/delete_file_code', methods=['GET','POST'])
+def delete_file_code():
+    if request.method == 'POST' and os.path.exists('urls.json'):
+        with open('urls.json') as url_file:
+            urls = json.load(url_file)
+
+            if(request.form['code'] not in urls.keys()):
+                flash("Short code dosen't exist")
+                return redirect(url_for('urlshort.home'))
+            else:
+                if 'file' in urls[request.form['code']].keys() or 'url' in urls[request.form['code']].keys():
+                    #Creating new copy of urls as we can't edit urls in read mode
+                    urls_new = urls
+                    #Deleting the key from the new copy created
+                    urls_new.pop(request.form['code'])
+
+                    with open('urls.json', 'w') as url_file:
+                        #Write the new updated urls json to existing urls.json file in write mode
+                        json.dump(urls_new,url_file)
+                    
+                    flash("Deleted Successfully")
+                    return redirect(url_for('urlshort.home'))
+                else:
+                    flash("Already Deleted")
+                    return redirect(url_for('urlshort.manage_code'))
+    else:
+        return abort(404)
+            
