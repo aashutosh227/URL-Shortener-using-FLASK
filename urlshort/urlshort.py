@@ -36,7 +36,8 @@ def your_url():
         else:   #For File
             f=request.files['file'] #Key same as name attribute in html form
             full_name = request.form['code'] + secure_filename(f.filename)
-            f.save('/home/aashutosh/Desktop/url_shortener/urlshort/static/user_files/'+full_name)
+            f.save('urlshort/static/user_files/'+full_name)
+            #f.save(url_for('static', filename= 'user_files/'+full_name))
             urls[request.form['code']] = {'file': full_name}
 
         with open('urls.json', 'w') as url_file:
@@ -92,6 +93,7 @@ def visit():
                 if 'url' in urls[code].keys():
                     return redirect(urls[code]['url'])
                 else:
+                    #return redirect('urlshort/static/user_files/'+urls[code]['file'])
                     return redirect(url_for('static', filename= 'user_files/'+urls[code]['file']))
     else:
         return abort(404)
@@ -160,4 +162,50 @@ def delete_file_code():
                     return redirect(url_for('urlshort.manage_code'))
     else:
         return abort(404)
+
+@bp.route('/update_file', methods=['GET','POST'])
+def update_file():
+    if request.method == 'POST' and os.path.exists('urls.json'):
+        with open('urls.json') as url_file:
+            urls =json.load(url_file)
+            code = request.form['code']
+            try:
+                os.remove('urlshort/static/user_files/'+urls[code]['file'])
+            except OSError:
+                pass
             
+            urls_new = urls
+            urls_new.pop(code)
+            
+            f = request.files['new_file'] #Key same as name attribute in html form
+            full_name = code + secure_filename(f.filename)
+            f.save('urlshort/static/user_files/'+full_name)
+            #f.save(url_for('static', filename= 'user_files/'+full_name))
+            urls_new[code] = {'file': full_name}
+
+            with open('urls.json', 'w') as url_file:
+                json.dump(urls_new,url_file)
+                session[request.form['code']] = True
+            
+            flash("Updated Successfully")
+            return redirect(url_for('urlshort.manage_code'))
+    else:
+        return abort(404)
+
+@bp.route('/update_url', methods=['GET','POST'])
+def update_url():
+    if request.method == 'POST' and os.path.exists('urls.json'):
+        with open('urls.json') as url_file:
+            urls =json.load(url_file)
+            urls_new = urls
+
+            urls_new.pop(request.form['code'])
+            urls_new[request.form['code']] = {'url': request.form['url']}
+
+            with open('urls.json', 'w') as url_file:
+                json.dump(urls_new, url_file)
+
+                flash("Updated Successfully")
+                return redirect(url_for('urlshort.manage_code'))
+    else:
+        return abort(404)

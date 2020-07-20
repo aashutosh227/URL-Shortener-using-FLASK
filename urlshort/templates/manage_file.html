@@ -8,14 +8,12 @@
             <h4 class="my-0 font-weight-normal text-center">File</h4>
           </div>
           <div class="card-body">
-            <form action="your-url" method="post" id="manage_form">
+            <form action="update_file" method="post" id="manage_form" enctype="multipart/form-data">
               <label for="code">Short Name</label>
               <input type="text" class="form-control" name="code" id="code" value="{{ request.form['code'] }}" required>
               <br>
               <label for="long_url">File Path</label>
-              <input type="file" class="form-control" name="file" id="file" 
-              value="{{ file_path }}" 
-              required>
+              <input type="file" class="form-control" name="new_file" id="file" required>
               <br>
               <button class="btn btn-primary my-2 del_btn" onclick="del_url()" type="button" id="del_btn">
                 Delete</button>
